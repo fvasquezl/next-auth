@@ -5,6 +5,7 @@ import React from 'react'
 const SigninButton = () => {
 
     const { data: session } = useSession()
+
     if (session && session.user) {
         return (
             <div className="flex gap-4 ml-auto">
