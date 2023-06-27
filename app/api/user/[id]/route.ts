@@ -1,9 +1,23 @@
+import { verifyJwt } from "@/app/lib/jwt";
 import prisma from "@/app/lib/prisma";
 
 
 export async function GET(request: Request, { params }: { params: { id: number } }) {
-    const UserPosts = await prisma.post.findMany({
-        where: { authorId: params.id },
+
+    const accessToken = request.headers.get('authorization');
+
+    if (!accessToken || !verifyJwt(accessToken)) {
+
+        return new Response(JSON.stringify({
+            error: "unauthorized",
+        }), {
+            status: 401,
+        }
+        )
+    }
+
+    const userPosts = await prisma.post.findMany({
+        where: { authorId: +params.id },
         include: {
             author: {
                 select: {
@@ -14,5 +28,5 @@ export async function GET(request: Request, { params }: { params: { id: number }
         }
     })
 
-    return new Response(JSON.stringify(UserPosts))
+    return new Response(JSON.stringify(userPosts))
 }
